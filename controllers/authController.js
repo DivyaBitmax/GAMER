@@ -166,7 +166,7 @@ exports.forgotPassword = async (req, res) => {
     });
 
     await transporter.sendMail({
-      from: `"Ludo Game" <${process.env.EMAIL_USER}>`,
+      from: `"Play Zelo" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Password Reset OTP",
       text: `Your OTP is ${otp}. It will expire in 5 minutes.`
