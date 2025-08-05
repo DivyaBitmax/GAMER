@@ -6,7 +6,8 @@ const {
   rollPlayerDice,
   createGame,
   getGameById,
-  joinGame
+  joinGame,
+
 } = require("../controllers/gameController");
 
 // ✅ Authentication middleware
@@ -23,6 +24,8 @@ router.post("/join/:id", authenticateUser, joinGame);
 
 // 🔍 Get game details by ID
 router.get("/:id", authenticateUser, getGameById);
+
+
 
 // ✅ Export the router
 module.exports = router;
