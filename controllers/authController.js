@@ -1,8 +1,9 @@
-// 📁 controllers/authController.js
+// controllers/authController.js
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { JWT_SECRET } = require("../config/config");
+
 
 exports.registerUser = async (req, res) => {
   try {
@@ -39,6 +40,8 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
+
 
 exports.loginUser = async (req, res) => {
   try {

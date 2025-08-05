@@ -22,4 +22,3 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/game", gameRoutes);
 
 app.listen(PORT, () => console.log(` Server running on port ${PORT}`));
-

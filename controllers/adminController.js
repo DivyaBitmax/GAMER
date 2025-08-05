@@ -27,25 +27,6 @@ const boostPlayer = async (req, res) => {
   res.status(200).json({ message: `Boosted ${player.username} by ${boostBy} points.` });
 };
 
-
-// const forceDice = async (req, res) => {
-//   const { gameId, playerId, diceValue } = req.body;
-
-//   const game = await GamePlay.findById(gameId);
-//   if (!game) return res.status(404).json({ message: "Game not found" });
-
-//   if (![1, 2, 3, 4, 5, 6].includes(diceValue))
-//     return res.status(400).json({ message: "Invalid dice value" });
-
-//   game.forcedDiceValue = diceValue;
-
-//   await game.save();
-
-//   res.status(200).json({ message: `Next dice for ${playerId} will be ${diceValue}` });
-// };
-
-
-
 const forceDice = async (req, res) => {
   const { gameId, playerId, diceValue } = req.body;
 
@@ -55,14 +36,13 @@ const forceDice = async (req, res) => {
   if (![1, 2, 3, 4, 5, 6].includes(diceValue))
     return res.status(400).json({ message: "Invalid dice value" });
 
-  // ✅ Proper Map usage
+  //  Proper Map usage
   const key = playerId.toString();
-  game.forcedDice.set(key, diceValue);  // <-- ✅ this is correct
+  game.forcedDice.set(key, diceValue);  // <--  this is correct
 
   await game.save();
 
   res.status(200).json({ message: `Next dice for ${playerId} will be ${diceValue}` });
 };
-
 
 module.exports = { setWinner, boostPlayer, forceDice };
