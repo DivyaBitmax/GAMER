@@ -194,63 +194,62 @@ exports.getGameById = async (req, res) => {
 };
 
 
-// exports.getGameById = async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//     const game = await GamePlay.findById(id);
-//     if (!game) return res.status(404).json({ msg: "Game not found" });
-//     res.status(200).json(game);
-//   } catch (err) {
-//     res.status(500).json({ msg: "Server error", error: err.message });
-//   }
-// };
-
-
-//joingame
-
-
-
-exports.joinGame = async (req, res) => {
-  const { id } = req.params;
-  const { username, userId } = req.body; // Make sure userId is sent
+exports.autoJoinGame = async (req, res) => {
+  const { username, userId } = req.body;
 
   try {
-    const game = await GamePlay.findById(id);
-    if (!game) return res.status(404).json({ msg: "Game not found" });
+    // Find open game (max 4 players)
+    let game = await GamePlay.findOne({
+      isCompleted: false,
+      $expr: { $lt: [{ $size: "$players" }, 4] }
+    });
 
-    if (game.players.length >= 4) {
-      return res.status(400).json({ msg: "Game is full" });
+    // If no open game → create one
+    if (!game) {
+      game = new GamePlay({
+        players: [{
+          username,
+          userId,
+          pawns: [{}, {}, {}, {}],
+          score: 0,
+          movesTaken: 0,
+          lastMoveTime: null,
+          playerIndex: 0
+        }],
+        currentTurn: userId
+      });
+      await game.save();
+      return res.status(201).json({ msg: "New game created & joined", gameId: game._id });
     }
 
-    const existing = game.players.find(p => p.username === username);
-    if (existing) {
-      return res.status(400).json({ msg: "Player already joined" });
+    // Already in game check
+    if (game.players.some(p => p.userId.toString() === userId.toString())) {
+      return res.status(400).json({ msg: "Already in this game", gameId: game._id });
     }
 
+    // Add player to game
     game.players.push({
       username,
       userId,
-      position: 0,
+      pawns: [{}, {}, {}, {}],
       score: 0,
       movesTaken: 0,
       lastMoveTime: null,
       playerIndex: game.players.length
     });
 
-    if (game.players.length >= 2) {
-      game.status = "started";
+    // Start timer when 2nd player joins
+    if (game.players.length >= 2 && !game.timerEnd) {
       const now = new Date();
-      game.timerEnd = new Date(now.getTime() + 60000);
+      game.timerEnd = new Date(now.getTime() + 5 * 60 * 1000);
       game.startTime = now;
     }
 
     await game.save();
-    res.status(200).json({ msg: "Player joined", game });
+    res.status(200).json({ msg: "Joined existing game", gameId: game._id });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
-
-
-

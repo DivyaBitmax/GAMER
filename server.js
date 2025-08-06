@@ -18,6 +18,8 @@ mongoose
 
 app.use("/api/auth", require("./routes/authRoutes"));
 
+app.use("/api/admin/auth", require("./routes/adminAuthRoutes"));
+
 app.use("/api/admin", adminRoutes);
 app.use("/api/game", gameRoutes);
 

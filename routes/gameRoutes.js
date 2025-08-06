@@ -7,6 +7,7 @@ const {
   createGame,
   getGameById,
   joinGame,
+  autoJoinGame
 
 } = require("../controllers/gameController");
 
@@ -25,6 +26,10 @@ router.post("/join/:id", authenticateUser, joinGame);
 // 🔍 Get game details by ID
 router.get("/:id", authenticateUser, getGameById);
 
+
+
+// Auto assign route
+router.post("/join-auto", authenticateUser, autoJoinGame);
 
 
 // ✅ Export the router
