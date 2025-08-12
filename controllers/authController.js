@@ -23,6 +23,7 @@ exports.registerUser = async (req, res) => {
       username,
       dob,
       country,
+      address, // ✅ Save address
       city,
       email,
       phone,
@@ -69,7 +70,6 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-
 // ---------------- Get Profile ----------------
 exports.getProfile = async (req, res) => {
   try {
@@ -85,14 +85,6 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
-
-
-
-
-
-
-
-
 
 
 let otpStore = {}; // { email: { otp, expires, verified } }
