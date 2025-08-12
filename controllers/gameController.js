@@ -1,25 +1,145 @@
 const GamePlay = require("../models/GamePlay");
 const { rollDice } = require("../utils/diceRoller");
 const User = require("../models/User");
-const { nanoid } = require("nanoid"); // npm install nanoid
+
 
 // 🎲 Roll dice for a specific pawn
+// exports.rollPlayerDice = async (req, res) => {
+//   try {
+//     const { gameId, pawnIndex } = req.body;
+//     const playerId = req.user.id;
+//     const game = await GamePlay.findById(gameId);
+//     if (!game) return res.status(404).json({ message: "Game not found" });
+
+//     const now = new Date();
+
+//     if (!game.timerEnd) {
+//       game.startTime = now;
+//       game.timerEnd = new Date(now.getTime() + 5 * 60 * 1000);
+//     }
+
+//     if (now > game.timerEnd) {
+//       game.isCompleted = true;
+
+//       game.players.sort((a, b) => {
+//         if (b.score !== a.score) return b.score - a.score;
+//         if ((a.movesTaken || 0) !== (b.movesTaken || 0)) return (a.movesTaken || 0) - (b.movesTaken || 0);
+//         const timeA = new Date(a.lastMoveTime || 0).getTime();
+//         const timeB = new Date(b.lastMoveTime || 0).getTime();
+//         if (timeA !== timeB) return timeA - timeB;
+//         if (a.playerIndex !== b.playerIndex) return a.playerIndex - b.playerIndex;
+//         return a.userId.toString().localeCompare(b.userId.toString());
+//       });
+
+//       game.players.forEach((player, index) => {
+//         player.rank = index + 1;
+//         player.isWinner = index === 0;
+//       });
+
+//       await game.save();
+//       return res.status(200).json({ message: "Game ended", players: game.players });
+//     }
+
+//     if (game.isCompleted) return res.status(400).json({ message: "Game is already completed" });
+
+//     if (game.currentTurn.toString() !== playerId.toString()) {
+//       return res.status(403).json({ message: "Not your turn" });
+//     }
+
+//     const player = game.players.find(p => p.userId?.toString() === playerId);
+//     if (!player) return res.status(404).json({ message: "Player not found" });
+
+//     if (pawnIndex < 0 || pawnIndex > 3) {
+//       return res.status(400).json({ message: "Invalid pawn index" });
+//     }
+
+//     const pawn = player.pawns[pawnIndex];
+//     if (!pawn) return res.status(400).json({ message: "Pawn not found" });
+
+//     // 👉 Ensure playerSixCount is initialized
+//     if (!game.playerSixCount) game.playerSixCount = new Map();
+//     if (!game.playerSixCount[playerId]) game.playerSixCount[playerId] = 0;
+
+//     let dice;
+//     const forcedValue = game.forcedDice?.get(playerId.toString());
+
+//     // 🔁 Six logic
+//     const sixCount = game.playerSixCount[playerId] || 0;
+
+//     if (forcedValue !== undefined && forcedValue !== null) {
+//       dice = forcedValue;
+//       game.forcedDice.delete(playerId.toString());
+//     } else {
+//       if (sixCount >= 2) {
+//         // Block third six
+//         dice = Math.floor(Math.random() * 5) + 1; // 1 to 5 only
+//       } else {
+//         dice = rollDice(playerId); // 1 to 6
+//       }
+//     }
+
+//     // Track 6s
+//     if (dice === 6) {
+//       game.playerSixCount[playerId] = sixCount + 1;
+//     } else {
+//       game.playerSixCount[playerId] = 0;
+//     }
+
+//     // 🟢 Update pawn and score
+//     pawn.position += dice;
+//     if (pawn.position >= 57) {
+//       pawn.isHome = true;
+//       pawn.position = 57;
+//       player.score += 10;
+//     } else {
+//       player.score += dice;
+//     }
+
+//     player.movesTaken = (player.movesTaken || 0) + 1;
+//     player.lastMoveTime = new Date();
+
+//     game.moveHistory.push({ player: playerId, pawnIndex, diceValue: dice });
+
+//     // 🧠 Extra turn if 6, otherwise switch turn
+//     if (dice !== 6) {
+//       const index = game.players.findIndex(p => p.userId?.toString() === playerId);
+//       const next = (index + 1) % game.players.length;
+//       game.currentTurn = game.players[next].userId;
+//     }
+
+//     await game.save();
+
+//     res.status(200).json({
+//       message: "Dice rolled",
+//       dice,
+//       pawnIndex,
+//       pawnPosition: pawn.position,
+//       currentScore: player.score,
+//       nextTurn: game.currentTurn
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Internal server error", error: error.message });
+//   }
+// };
+
+
+const SAFE_SPOTS = [0, 8, 13, 21, 26, 34, 39, 47]; 
+
+
 exports.rollPlayerDice = async (req, res) => {
   try {
-    const { gameId, pawnIndex } = req.body; // pawnIndex required
+    const { gameId, pawnIndex } = req.body;
     const playerId = req.user.id;
     const game = await GamePlay.findById(gameId);
     if (!game) return res.status(404).json({ message: "Game not found" });
 
     const now = new Date();
-
-    // Start timer if not already started
     if (!game.timerEnd) {
       game.startTime = now;
       game.timerEnd = new Date(now.getTime() + 5 * 60 * 1000);
     }
 
-    // If time up → end game
     if (now > game.timerEnd) {
       game.isCompleted = true;
 
@@ -43,71 +163,129 @@ exports.rollPlayerDice = async (req, res) => {
     }
 
     if (game.isCompleted) return res.status(400).json({ message: "Game is already completed" });
-
-    // Turn validation
     if (game.currentTurn.toString() !== playerId.toString()) {
       return res.status(403).json({ message: "Not your turn" });
     }
 
-    // Find player
     const player = game.players.find(p => p.userId?.toString() === playerId);
     if (!player) return res.status(404).json({ message: "Player not found" });
 
-    // Pawn validation
-    if (pawnIndex < 0 || pawnIndex > 3) {
-      return res.status(400).json({ message: "Invalid pawn index" });
-    }
-
+    if (pawnIndex < 0 || pawnIndex > 3) return res.status(400).json({ message: "Invalid pawn index" });
     const pawn = player.pawns[pawnIndex];
     if (!pawn) return res.status(400).json({ message: "Pawn not found" });
 
-    // Roll dice (forced or random)
+    if (!game.playerSixCount) game.playerSixCount = new Map();
+    if (!game.playerSixCount[playerId]) game.playerSixCount[playerId] = 0;
+
     let dice;
     const forcedValue = game.forcedDice?.get(playerId.toString());
+    const sixCount = game.playerSixCount[playerId] || 0;
+
     if (forcedValue !== undefined && forcedValue !== null) {
       dice = forcedValue;
       game.forcedDice.delete(playerId.toString());
     } else {
-      dice = rollDice(playerId);
+      dice = (sixCount >= 2) ? Math.floor(Math.random() * 5) + 1 : rollDice(playerId);
     }
 
-    // Update pawn position & score
+    game.playerSixCount[playerId] = (dice === 6) ? sixCount + 1 : 0;
+
     pawn.position += dice;
-    if (pawn.position >= 57) { // Ludo home position
+    if (pawn.position >= 57) {
       pawn.isHome = true;
       pawn.position = 57;
-      player.score += 10; // Bonus for home
+      player.score += 10;
     } else {
       player.score += dice;
     }
 
-    // Track moves
     player.movesTaken = (player.movesTaken || 0) + 1;
     player.lastMoveTime = new Date();
 
-    // Log move
     game.moveHistory.push({ player: playerId, pawnIndex, diceValue: dice });
 
-    // Next turn
-    const index = game.players.findIndex(p => p.userId?.toString() === playerId);
-    const next = (index + 1) % game.players.length;
-    game.currentTurn = game.players[next].userId;
+    // 🔪 Kill logic
+    // let killed = false;
+    // let killedPlayerName = null;
+
+    // if (!SAFE_SPOTS.includes(pawn.position)) {
+    //   for (let op of game.players) {
+    //     if (op.userId.toString() === playerId.toString()) continue;
+
+    //     for (let i = 0; i < op.pawns.length; i++) {
+    //       const enemyPawn = op.pawns[i];
+    //       if (enemyPawn.position === pawn.position && !enemyPawn.isHome && enemyPawn.position !== -1) {
+    //         enemyPawn.position = -1; // send to base
+    //         killed = true;
+    //         killedPlayerName = op.name || "Opponent";
+    //         break;
+    //       }
+    //     }
+    //     if (killed) break;
+    //   }
+    // }
+
+// 🔪 Kill logic
+// 🔪 Kill logic
+let killed = false;
+let killedPlayerName = null;
+
+if (!SAFE_SPOTS.includes(pawn.position)) {
+  for (let op of game.players) {
+    if (op.userId.toString() === playerId.toString()) continue; // ✅ skip same player
+
+    for (let i = 0; i < op.pawns.length; i++) {
+      const enemyPawn = op.pawns[i];
+
+      if (
+        enemyPawn.position === pawn.position &&
+        !enemyPawn.isHome &&
+        enemyPawn.position !== -1 &&
+        enemyPawn.position !== 57 // already home
+      ) {
+        enemyPawn.position = 0; // ✅ send to STARTING point
+        killed = true;
+        killedPlayerName = op.name || "Opponent";
+        break;
+      }
+    }
+    if (killed) break;
+  }
+}
+
+    // 🗨 Message logic
+    let message = "Dice rolled";
+    const currentPlayerName = player.name || "You";
+    if (killed) {
+      message = `${currentPlayerName} killed ${killedPlayerName}'s pawn!`;
+    } else if (SAFE_SPOTS.includes(pawn.position)) {
+      message = `${currentPlayerName}'s pawn is safe on spot ${pawn.position}`;
+    }
+
+    // 🔁 Turn logic
+    if (!(dice === 6 || killed)) {
+      const index = game.players.findIndex(p => p.userId?.toString() === playerId);
+      const next = (index + 1) % game.players.length;
+      game.currentTurn = game.players[next].userId;
+    }
 
     await game.save();
 
-    res.status(200).json({
-      message: "Dice rolled",
+    return res.status(200).json({
+      message,
       dice,
       pawnIndex,
       pawnPosition: pawn.position,
       currentScore: player.score,
       nextTurn: game.currentTurn
     });
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    return res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+
 
  // 🎮 Create new game
 exports.createGame = async (req, res) => {

@@ -69,6 +69,32 @@ exports.loginUser = async (req, res) => {
   }
 };
 
+
+// ---------------- Get Profile ----------------
+exports.getProfile = async (req, res) => {
+  try {
+    // req.user is set by authenticateUser middleware (contains id)
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ msg: "Unauthorized" });
+
+    const user = await User.findById(userId).select("-password -__v");
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    res.status(200).json({ msg: "Profile fetched", user });
+  } catch (err) {
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};
+
+
+
+
+
+
+
+
+
+
 let otpStore = {}; // { email: { otp, expires, verified } }
 let verifiedEmailStore = {}; // Store email after OTP verification
 

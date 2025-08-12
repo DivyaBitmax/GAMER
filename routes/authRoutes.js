@@ -1,14 +1,3 @@
-// // 📁 routes/auth.js
-// const express = require("express");
-// const router = express.Router();
-// const { registerUser, loginUser } = require("../controllers/authController");
-
-// router.post("/register", registerUser);
-// router.post("/login", loginUser);
-
-// module.exports = router;
-
-
 const express = require("express");
 const router = express.Router();
 const {
@@ -16,7 +5,8 @@ const {
   loginUser,
   forgotPassword,
   verifyOtp,
-  resetPassword
+  resetPassword,
+   getProfile
 } = require("../controllers/authController");
 
 // 🔹 User Registration
@@ -24,6 +14,11 @@ router.post("/register", registerUser);
 
 // 🔹 User Login
 router.post("/login", loginUser);
+
+
+// 🔹 Get profile (protected)
+router.get("/profile",  getProfile);
+
 
 // 🔹 Forgot Password - Send OTP
 router.post("/forgot-password", forgotPassword);
