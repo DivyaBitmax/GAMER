@@ -6,8 +6,11 @@ const {
   forgotPassword,
   verifyOtp,
   resetPassword,
-   getProfile
+getProfile
 } = require("../controllers/authController");
+
+// ✅ Authentication middleware
+const authenticateUser = require("../middlware/authMiddleware");
 
 // 🔹 User Registration
 router.post("/register", registerUser);
@@ -17,7 +20,7 @@ router.post("/login", loginUser);
 
 
 // 🔹 Get profile (protected)
-router.get("/profile",  getProfile);
+router.get("/profile", authenticateUser, getProfile);
 
 
 // 🔹 Forgot Password - Send OTP
