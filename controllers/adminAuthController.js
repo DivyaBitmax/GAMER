@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
+const User = require("../models/User");
 const { JWT_SECRET } = require("../config/config");
 
 // 📝 Register Admin (One-time setup)

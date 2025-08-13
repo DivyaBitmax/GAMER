@@ -16,8 +16,11 @@ mongoose
   .then(() => console.log(" MongoDB connected"))
   .catch((err) => console.error(" Mongo error:", err));
 
+//users signUp+login
 app.use("/api/auth", require("./routes/authRoutes"));
 
+
+//admin login
 app.use("/api/admin/auth", require("./routes/adminAuthRoutes"));
 
 app.use("/api/admin", adminRoutes);
