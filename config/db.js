@@ -9,5 +9,4 @@ const connectDB = async () => {
     console.error("❌ MongoDB connection error:", err.message);
   }
 };
-
 module.exports = connectDB;
