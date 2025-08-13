@@ -6,8 +6,8 @@ const {
   forgotPassword,
   verifyOtp,
   resetPassword,
-getProfile,
-getAllUsers
+getProfile
+
 } = require("../controllers/authController");
 
 // ✅ Authentication middleware
@@ -34,5 +34,4 @@ router.post("/verify-otp", verifyOtp);
 router.post("/reset-password", resetPassword);
 
 
-router.get("/users", authenticateUser, getAllUsers);
 module.exports = router;

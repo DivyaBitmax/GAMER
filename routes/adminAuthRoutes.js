@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authenticateUser = require("../middlware/authMiddleware"); // tumhara existing middleware
 
-const { registerAdmin, loginAdmin, changePassword } = require("../controllers/adminAuthController");
+const { registerAdmin, loginAdmin, changePassword ,getAllUsers} = require("../controllers/adminAuthController");
 
 // 📝 Register
 router.post("/register", registerAdmin);
@@ -13,4 +13,7 @@ router.post("/login", loginAdmin);
 // 🔄 Change Password (Login Required)
 router.post("/change-password", authenticateUser, changePassword);
 
+
+
+router.get("/users", authenticateUser, getAllUsers);
 module.exports = router;
