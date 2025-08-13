@@ -158,21 +158,3 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-// ---------------- Get All Users (Admin Only) ----------------
-exports.getAllUsers = async (req, res) => {
-  try {
-    // Ye check karo ki request admin ka hai
-    if (!req.user || req.user.role !== "admin") {
-      return res.status(403).json({ msg: "Access denied. Admins only." });
-    }
-
-    const users = await User.find().select("-password -__v");
-    res.status(200).json({
-      msg: "Users fetched successfully",
-      count: users.length,
-      users
-    });
-  } catch (err) {
-    res.status(500).json({ msg: "Server error", error: err.message });
-  }
-};
