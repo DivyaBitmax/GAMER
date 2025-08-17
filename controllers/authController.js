@@ -86,6 +86,32 @@ exports.getProfile = async (req, res) => {
 };
 
 
+// 📌 Update Profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user?.id; // middleware se aayega
+    if (!userId) return res.status(401).json({ msg: "Unauthorized" });
+
+    const updates = req.body;
+
+    // password update alag se handle karo
+    if (updates.password) {
+      updates.password = await bcrypt.hash(updates.password, 10);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select("-password -__v");
+
+    res.status(200).json({ msg: "Profile updated", user: updatedUser });
+  } catch (err) {
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};
+
+
 let otpStore = {}; // { email: { otp, expires, verified } }
 let verifiedEmailStore = {}; // Store email after OTP verification
 

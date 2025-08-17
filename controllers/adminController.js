@@ -10,7 +10,6 @@ const setWinner = (req, res) => {
   setWinningPlayer(playerId);
   return res.status(200).json({ message: `Player ${playerId} set as winner.` });
 };
-
 // Boost a player's score
 const boostPlayer = async (req, res) => {
   const { gameId, playerId, boostBy } = req.body;
@@ -26,7 +25,6 @@ const boostPlayer = async (req, res) => {
 
   res.status(200).json({ message: `Boosted ${player.username} by ${boostBy} points.` });
 };
-
 const forceDice = async (req, res) => {
   const { gameId, playerId, diceValue } = req.body;
 
@@ -44,5 +42,4 @@ const forceDice = async (req, res) => {
 
   res.status(200).json({ message: `Next dice for ${playerId} will be ${diceValue}` });
 };
-
 module.exports = { setWinner, boostPlayer, forceDice };

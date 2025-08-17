@@ -4,7 +4,9 @@ const Admin = require("../models/Admin");
 const User = require("../models/User");
 const { JWT_SECRET } = require("../config/config");
 
+
 // 📝 Register Admin (One-time setup)
+
 exports.registerAdmin = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -28,7 +30,9 @@ exports.registerAdmin = async (req, res) => {
   }
 };
 
+
 // 🔑 Admin Login
+
 exports.loginAdmin = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -51,7 +55,9 @@ exports.loginAdmin = async (req, res) => {
   }
 };
 
+
 // 🔄 Change Password (Login Required)
+
 exports.changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
@@ -81,6 +87,7 @@ exports.changePassword = async (req, res) => {
 
 
 // ---------------- Get All Users (Admin Only) ----------------
+
 exports.getAllUsers = async (req, res) => {
   try {
     // Ye check karo ki request admin ka hai

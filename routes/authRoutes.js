@@ -6,7 +6,8 @@ const {
   forgotPassword,
   verifyOtp,
   resetPassword,
-getProfile
+getProfile,
+updateProfile
 
 } = require("../controllers/authController");
 
@@ -22,6 +23,8 @@ router.post("/login", loginUser);
 
 // 🔹 Get profile (protected)
 router.get("/profile", authenticateUser, getProfile);
+// Update profile (protected)
+router.put("/profile", authenticateUser, updateProfile);
 
 
 // 🔹 Forgot Password - Send OTP
