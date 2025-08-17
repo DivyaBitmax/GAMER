@@ -90,12 +90,7 @@ exports.changePassword = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    // Ye check karo ki request admin ka hai
-    if (!req.user || req.user.role !== "admin") {
-      return res.status(403).json({ msg: "Access denied. Admins only." });
-    }
-
-    const users = await User.find().select("-password -__v");
+    const users = await User.find().select("-password -__v"); // password & __v hide
     res.status(200).json({
       msg: "Users fetched successfully",
       count: users.length,

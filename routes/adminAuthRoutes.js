@@ -15,5 +15,5 @@ router.post("/change-password", authenticateUser, changePassword);
 
 
 
-router.get("/users", authenticateUser, getAllUsers);
+router.get("/users",  getAllUsers);
 module.exports = router;
