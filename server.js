@@ -22,8 +22,21 @@ app.use("/api/auth", require("./routes/authRoutes"));
 
 //admin login
 app.use("/api/admin/auth", require("./routes/adminAuthRoutes"));
-
 app.use("/api/admin", adminRoutes);
 app.use("/api/game", gameRoutes);
+
+
+// lottery
+const ticketRoutes = require("./routes/ticketRoutes");
+const lotteryRoutes = require("./routes/lotteryRoutes");
+app.use("/api/tickets", ticketRoutes);
+app.use("/api/lottery", lotteryRoutes);
+
+
+//another let see
+
+app.get('/live',(req,res)=>{
+  res.json({message:"my server is running"});
+})
 
 app.listen(PORT, () => console.log(` Server running on port ${PORT}`));
