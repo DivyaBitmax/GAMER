@@ -45,5 +45,4 @@ app.use("/api/lottery", lotteryRoutes);
 app.get('/live',(req,res)=>{
   res.json({message:"my server is running"});
 })
-
 app.listen(PORT, () => console.log(` Server running on port ${PORT}`));
