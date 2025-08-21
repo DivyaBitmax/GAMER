@@ -13,6 +13,6 @@ const ticketSchema = new mongoose.Schema({
   profileImage: { type: String, default: "" },
   notes: { type: String, default: "" },
   username: { type: String, default: "" }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("Ticket", ticketSchema);

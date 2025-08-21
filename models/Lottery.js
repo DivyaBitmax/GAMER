@@ -14,6 +14,6 @@ const lotterySchema = new mongoose.Schema({
   tickets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ticket" }],
   winners: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ticket" }],
   isCompleted: { type: Boolean, default: false }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("Lottery", lotterySchema);

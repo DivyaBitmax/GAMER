@@ -1,3 +1,4 @@
+const Lottery = require("../models/Lottery");
 const Ticket = require("../models/Ticket");
 
 // 🎟️ Buy Ticket
@@ -25,11 +26,43 @@ exports.buyTicket = async (req, res) => {
 };
 
 // 🎟️ Get All Tickets
+// exports.getAllTickets = async (req, res) => {
+//   try {
+//     const tickets = await Ticket.find().populate("lotteryId userId").sort({createdAt:1});
+
+//     res.json({ success: true, tickets });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+// 🎟️ Get All Tickets (Latest Lottery Only)
 exports.getAllTickets = async (req, res) => {
   try {
-    const tickets = await Ticket.find().populate("lotteryId userId").sort({createdAt:-1});
+    // 1️⃣ Get latest lottery
+    const latestLottery = await Lottery.findOne().sort({ createdAt: -1 });
 
-    res.json({ success: true, tickets });
+    if (!latestLottery) {
+      return res.status(404).json({ success: false, msg: "No lottery found" });
+    }
+
+    // 2️⃣ Get tickets only for that lottery
+    const tickets = await Ticket.find({ lotteryId: latestLottery._id })
+      .populate("lotteryId userId")
+      .sort({ createdAt: 1 });
+
+    res.json({ success: true, lotteryId: latestLottery._id, tickets });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
