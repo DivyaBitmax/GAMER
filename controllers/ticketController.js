@@ -38,15 +38,6 @@ exports.buyTicket = async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
 // 🎟️ Get All Tickets (Latest Lottery Only)
 exports.getAllTickets = async (req, res) => {
   try {
