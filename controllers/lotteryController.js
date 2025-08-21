@@ -15,7 +15,7 @@ exports.createLottery = async (req, res) => {
       endRange
     } = req.body;
 
-    // 🎟️ Lottery save with all settings
+    //  Lottery save with all settings
     const lottery = new Lottery({
       drawDate,
       salesStartTime,
@@ -27,7 +27,7 @@ exports.createLottery = async (req, res) => {
     });
     await lottery.save();
 
-    // 🔢 Sequential ticket generation
+    //  Sequential ticket generation
     let tickets = [];
     let startNum = parseInt(startRange.replace(/\D/g, "")); // e.g. "1E200" => 200
     let endNum = parseInt(endRange.replace(/\D/g, ""));     // e.g. "1F900" => 900

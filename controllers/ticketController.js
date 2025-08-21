@@ -27,7 +27,7 @@ exports.buyTicket = async (req, res) => {
 // 🎟️ Get All Tickets
 exports.getAllTickets = async (req, res) => {
   try {
-    const tickets = await Ticket.find().populate("lotteryId userId");
+    const tickets = await Ticket.find().populate("lotteryId userId").sort({createdAt:-1});
 
     res.json({ success: true, tickets });
   } catch (err) {

@@ -33,7 +33,14 @@ app.use("/api/tickets", ticketRoutes);
 app.use("/api/lottery", lotteryRoutes);
 
 
-//another let see
+// const walletRoutes = require("./routes/walletRoutes");      // 👈 wallet routes import
+// const gameWalletRoutes = require("./routes/gameWalletRoutes"); // 👈 game wallet routes import
+// // 🎯 wallet APIs (deposit, withdraw, balance, txns)
+// app.use("/api/wallet", walletRoutes);
+// // 🎯 game wallet APIs (lock entry, settle game)
+// app.use("/api/game-wallet", gameWalletRoutes);
+
+
 
 app.get('/live',(req,res)=>{
   res.json({message:"my server is running"});
