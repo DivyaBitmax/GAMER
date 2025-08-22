@@ -4,10 +4,10 @@ const Ticket = require("../models/Ticket");
 // 🎟️ Buy Ticket
 exports.buyTicket = async (req, res) => {
   try {
-    const { ticketId, userId } = req.body;
-
+    const {  userId } = req.body;
+ const { ticketId, } = req.params;
     // Find ticket
-    const ticket = await Ticket.findById(ticketId);
+    const ticket = await Ticket.findOne({ ticketNumber: ticketId });
 
     if (!ticket) return res.status(404).json({ error: "Ticket not found" });
     if (ticket.status === "Sold") return res.status(400).json({ error: "Ticket already sold" });
@@ -24,18 +24,6 @@ exports.buyTicket = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-// 🎟️ Get All Tickets
-// exports.getAllTickets = async (req, res) => {
-//   try {
-//     const tickets = await Ticket.find().populate("lotteryId userId").sort({createdAt:1});
-
-//     res.json({ success: true, tickets });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
-
 
 
 // 🎟️ Get All Tickets (Latest Lottery Only)
