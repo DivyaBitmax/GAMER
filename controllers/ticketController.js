@@ -26,6 +26,28 @@ exports.buyTicket = async (req, res) => {
 };
 
 
+
+// 🎟️ Get Single Ticket by ticketNumber
+exports.getTicketById = async (req, res) => {
+  try {
+    const { ticketId } = req.params; // yaha ticketNumber aayega (ex: EM223)
+
+    const ticket = await Ticket.findOne({ ticketNumber: ticketId })
+      .populate("lotteryId userId");
+
+    if (!ticket) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+
+    res.json({ success: true, ticket });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+
 // 🎟️ Get All Tickets (Latest Lottery Only)
 exports.getAllTickets = async (req, res) => {
   try {
