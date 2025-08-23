@@ -6,6 +6,7 @@ exports.buyTicket = async (req, res) => {
   try {
     const {  userId } = req.body;
  const { ticketId, } = req.params;
+ console.log("🎟️ Ticket ID mila:", ticketId);  // 👉 Yaha dekh
     // Find ticket
     const ticket = await Ticket.findOne({ ticketNumber: ticketId });
 
