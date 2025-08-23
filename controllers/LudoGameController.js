@@ -1,4 +1,4 @@
-const GamePlay = require("../models/GamePlay");
+const GamePlay = require("../models/LudoGamePlay");
 const { rollDice } = require("../utils/diceRoller");
 const User = require("../models/User");
 

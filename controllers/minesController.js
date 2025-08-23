@@ -14,15 +14,6 @@ function generateBoard(minesCount) {
   return board;
 }
 
-// helper → scale profit based on mines count
-function scaleForMines(mines) {
-  if (mines <= 3)  return 0.28; // very low risk → low bump
-  if (mines <= 5)  return 0.30;
-  if (mines <= 7)  return 0.32;
-  if (mines <= 10) return 0.33; // 10 mines
-  return 0.36;                  // 11–15 mines
-}
-
 // 🎮 Start Game
 exports.startGame = async (req, res) => {
   try {
@@ -46,7 +37,6 @@ exports.startGame = async (req, res) => {
     });
 
     await game.save();
-
     res.json({ success: true, gameId: game._id, message: "Game started!" });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -63,14 +53,26 @@ exports.pickCell = async (req, res) => {
       return res.status(400).json({ error: "Invalid or finished game" });
     }
 
-    // ✅ check if already revealed
     if (game.revealed.includes(cellIndex)) {
       return res.status(400).json({ error: "Cell already opened" });
     }
 
-    const profitMultiplier = scaleForMines(game.minesCount);
+    // ✅ Admin Force Next Click
+    if (game.mode === "admin" && game.nextClick) {
+      if (game.nextClick === "boom") {
+        game.status = "lost";
+        await game.save();
+        return res.json({ result: "mine", status: "lost" });
+      }
+      if (game.nextClick === "safe") {
+        game.revealed.push(cellIndex);
+        game.profit += game.betAmount * game.payoutConfig.baseGainA;
+        await game.save();
+        return res.json({ result: "safe", profit: game.profit, revealed: game.revealed });
+      }
+    }
 
-    // admin override
+    // ✅ Forced Win/Lose
     if (game.mode === "admin" && game.forcedResult) {
       if (game.forcedResult === "lose") {
         game.status = "lost";
@@ -78,30 +80,55 @@ exports.pickCell = async (req, res) => {
         return res.json({ result: "mine", status: "lost" });
       } else {
         game.revealed.push(cellIndex);
-        game.profit += game.betAmount * profitMultiplier;
+        game.profit += game.betAmount * game.payoutConfig.baseGainA;
         await game.save();
         return res.json({ result: "safe", profit: game.profit, revealed: game.revealed });
       }
     }
 
-    // auto mode
+    // Normal auto mode
     if (game.board[cellIndex] === "mine") {
       game.status = "lost";
       await game.save();
       return res.json({ result: "mine", status: "lost" });
     } else {
       game.revealed.push(cellIndex);
-      game.profit += game.betAmount * profitMultiplier;
+      game.profit += game.betAmount * game.payoutConfig.baseGainA;
       await game.save();
       return res.json({ result: "safe", profit: game.profit, revealed: game.revealed });
     }
-
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
 // 💰 Cashout
+// exports.cashout = async (req, res) => {
+//   try {
+//     const { gameId } = req.body;
+//     const game = await MinesGame.findById(gameId);
+
+//     if (!game || game.status !== "ongoing") {
+//       return res.status(400).json({ error: "Invalid game" });
+//     }
+
+//     // ✅ Admin Forced Cashout
+//     if (game.forceCashout) {
+//       game.status = "cashedout";
+//       await game.save();
+//       const totalReturn = game.betAmount * game.forceCashout;
+//       return res.json({ success: true, forced: true, totalReturn, revealed: game.revealed });
+//     }
+
+//     game.status = "cashedout";
+//     await game.save();
+//     const totalReturn = game.betAmount + game.profit;
+//     res.json({ success: true, profit: game.profit, totalReturn, revealed: game.revealed });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
 // 💰 Cashout
 exports.cashout = async (req, res) => {
   try {
@@ -112,17 +139,24 @@ exports.cashout = async (req, res) => {
       return res.status(400).json({ error: "Invalid game" });
     }
 
+    let totalReturn;
+
+    // ✅ Admin Forced Cashout
+    if (game.forceCashout) {
+      totalReturn = game.betAmount * game.forceCashout;
+    } else {
+      totalReturn = game.betAmount + game.profit;
+    }
+
     game.status = "cashedout";
+    game.cashoutAmount = totalReturn;   // ✅ naya amount save karo
     await game.save();
 
-    // total return = original bet + accumulated profit
-    const totalReturn = game.betAmount + game.profit;
-
-    res.json({ 
-      success: true, 
-      profit: game.profit,          // winnings only
-      totalReturn: totalReturn,     // bet + profit
-      revealed: game.revealed 
+    res.json({
+      success: true,
+      profit: game.profit,
+      totalReturn,
+      revealed: game.revealed
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -133,16 +167,90 @@ exports.cashout = async (req, res) => {
 // 🛠️ Admin Override
 exports.adminOverride = async (req, res) => {
   try {
-    const { gameId, forcedResult } = req.body; // "win" or "lose"
+    const { gameId, forcedResult, nextClick, forceCashout, defaultMines, boardSeed, payoutConfig } = req.body;
     const game = await MinesGame.findById(gameId);
-
     if (!game) return res.status(404).json({ error: "Game not found" });
 
     game.mode = "admin";
-    game.forcedResult = forcedResult;
-    await game.save();
+    if (forcedResult) game.forcedResult = forcedResult;
+    if (nextClick) game.nextClick = nextClick;
+    if (forceCashout) game.forceCashout = forceCashout;
+    if (defaultMines) game.defaultMines = defaultMines;
+    if (boardSeed) game.boardSeed = boardSeed;
+    if (payoutConfig) game.payoutConfig = { ...game.payoutConfig, ...payoutConfig };
 
+    await game.save();
     res.json({ success: true, game });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+
+// 📊 Dashboard Metrics
+// exports.getStats = async (req, res) => {
+//   try {
+//     // Total unique users
+//     const totalUsers = await MinesGame.distinct("userId").then(u => u.length);
+
+//     // Total bets (sum of betAmount)
+//     const totalBets = await MinesGame.aggregate([
+//       { $group: { _id: null, total: { $sum: "$betAmount" } } }
+//     ]);
+
+//     // Total cashouts (sum of totalReturn where status = cashedout)
+//     const totalCashouts = await MinesGame.aggregate([
+//       { $match: { status: "cashedout" } },
+//       { $group: { _id: null, total: { $sum: "$totalReturn" } } }
+//     ]);
+
+//     // Active players (status = ongoing)
+//     const activePlayers = await MinesGame.distinct("userId", { status: "ongoing" }).then(u => u.length);
+
+//     res.json({
+//       totalUsers,
+//       totalBets: totalBets.length > 0 ? totalBets[0].total : 0,
+//       totalCashouts: totalCashouts.length > 0 ? totalCashouts[0].total : 0,
+//       activePlayers
+//     });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
+
+// 📊 Dashboard Metrics
+exports.getStats = async (req, res) => {
+  try {
+    // ✅ Total unique users
+    const totalUsers = (await MinesGame.distinct("userId")).length;
+
+    // ✅ Total bets (sum of betAmount)
+  // ✅ Total bets (only initial betAmount when game started)
+    const betsAgg = await MinesGame.aggregate([
+      { $match: { status: { $in: ["ongoing", "cashedout", "lost"] } } }, // sirf valid games
+      { $group: { _id: null, total: { $sum: "$betAmount" } } }
+    ]);
+    const totalBets = betsAgg[0]?.total || 0;
+
+    // ✅ Total Cashouts (sum of cashoutAmount)
+    const cashoutAgg = await MinesGame.aggregate([
+      { $match: { status: "cashedout" } },
+      { $group: { _id: null, total: { $sum: "$cashoutAmount" } } }
+    ]);
+    const totalCashouts = cashoutAgg[0]?.total || 0;
+
+    // ✅ Active players
+    const activePlayers = (await MinesGame.distinct("userId", { status: "ongoing" })).length;
+
+    res.json({
+      totalUsers,
+      totalBets,
+      totalCashouts,
+      activePlayers
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

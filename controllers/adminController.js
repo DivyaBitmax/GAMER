@@ -1,4 +1,4 @@
-const GamePlay = require("../models/GamePlay");
+const GamePlay = require("../models/LudoGamePlay");
 const { setWinningPlayer } = require("../utils/diceRoller");
 
 

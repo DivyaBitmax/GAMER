@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const { MONGO_URI, PORT } = require("./config/config");
 
-const adminRoutes = require("./routes/adminRoutes");
-const gameRoutes = require("./routes/gameRoutes");
+const adminRoutes = require("./routes/adminLudoRoutes");
+const gameRoutes = require("./routes/LudoGameRoutes");
 
 const app = express();
 

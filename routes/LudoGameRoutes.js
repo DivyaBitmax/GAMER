@@ -9,7 +9,7 @@ const {
   joinGame,
   autoJoinGame
 
-} = require("../controllers/gameController");
+} = require("../controllers/LudoGameController");
 
 // ✅ Authentication middleware
 const authenticateUser = require("../middlware/authMiddleware");
