@@ -67,6 +67,7 @@ exports.pickCell = async (req, res) => {
       if (game.nextClick === "safe") {
         game.revealed.push(cellIndex);
         game.profit += game.betAmount * game.payoutConfig.baseGainA;
+         game.safePicks += 1; // Increment safe picks
         await game.save();
         return res.json({ result: "safe", profit: game.profit, revealed: game.revealed });
       }
@@ -81,6 +82,7 @@ exports.pickCell = async (req, res) => {
       } else {
         game.revealed.push(cellIndex);
         game.profit += game.betAmount * game.payoutConfig.baseGainA;
+          game.safePicks += 1; // Increment safe picks
         await game.save();
         return res.json({ result: "safe", profit: game.profit, revealed: game.revealed });
       }
@@ -94,42 +96,17 @@ exports.pickCell = async (req, res) => {
     } else {
       game.revealed.push(cellIndex);
       game.profit += game.betAmount * game.payoutConfig.baseGainA;
+        game.safePicks += 1; // Increment safe picks
       await game.save();
-      return res.json({ result: "safe", profit: game.profit, revealed: game.revealed });
+      return res.json({ result: "safe", profit: game.profit, revealed: game.revealed,  safePicks: game.safePicks });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// 💰 Cashout
-// exports.cashout = async (req, res) => {
-//   try {
-//     const { gameId } = req.body;
-//     const game = await MinesGame.findById(gameId);
 
-//     if (!game || game.status !== "ongoing") {
-//       return res.status(400).json({ error: "Invalid game" });
-//     }
 
-//     // ✅ Admin Forced Cashout
-//     if (game.forceCashout) {
-//       game.status = "cashedout";
-//       await game.save();
-//       const totalReturn = game.betAmount * game.forceCashout;
-//       return res.json({ success: true, forced: true, totalReturn, revealed: game.revealed });
-//     }
-
-//     game.status = "cashedout";
-//     await game.save();
-//     const totalReturn = game.betAmount + game.profit;
-//     res.json({ success: true, profit: game.profit, totalReturn, revealed: game.revealed });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
-
-// 💰 Cashout
 exports.cashout = async (req, res) => {
   try {
     const { gameId } = req.body;

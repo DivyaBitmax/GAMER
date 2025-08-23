@@ -13,6 +13,8 @@ const minesGameSchema = new mongoose.Schema({
   cashoutAmount: { type: Number, default: 0 },
   mode: { type: String, enum: ["auto", "admin"], default: "auto" }, // game mode
   forcedResult: { type: String, enum: ["win", "lose", null], default: null }, // admin override
+    // 🔥 New fields added
+  safePicks: { type: Number, default: 0 }, // Tracks number of safe picks
 
   // 🔥 Extra Admin Controls
   nextClick: { type: String, enum: ["boom", "safe", null], default: null }, // force next click
