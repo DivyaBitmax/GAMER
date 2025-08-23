@@ -1,5 +1,4 @@
 const MinesGame = require("../models/MinesGame");
-
 // helper → random mines board generate
 function generateBoard(minesCount) {
   let board = Array(25).fill("safe");
@@ -13,7 +12,6 @@ function generateBoard(minesCount) {
   }
   return board;
 }
-
 // 🎮 Start Game
 exports.startGame = async (req, res) => {
   try {
@@ -139,8 +137,6 @@ exports.cashout = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-
 // 🛠️ Admin Override
 exports.adminOverride = async (req, res) => {
   try {

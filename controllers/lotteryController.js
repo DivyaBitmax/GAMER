@@ -107,21 +107,70 @@ exports.createLottery = async (req, res) => {
 // };
 
 
+// exports.drawWinners = async (req, res) => {
+//   try {
+//     const lotteryId = req.params.id;          // <-- use URL param
+//     const { ticketNumber, username, prize, profileImage, notes } = req.body;
+
+//     const lottery = await Lottery.findById(lotteryId).populate("tickets");
+//     if (!lottery) return res.status(404).json({ error: "Lottery not found" });
+
+//     // Find sold ticket
+//     const ticket = lottery.tickets.find(
+//       t => t.ticketNumber === ticketNumber && t.status === "Sold"
+//     );
+//     if (!ticket) return res.status(404).json({ error: "Ticket not found or not sold" });
+
+//     // Mark as winner and save extra info
+//     ticket.isWinner = true;
+//     ticket.prize = prize || 0;
+//     ticket.profileImage = profileImage || "";
+//     ticket.notes = notes || "";
+//     ticket.username = username || "";
+//     await ticket.save();
+
+//     // Add to lottery winners array
+//     lottery.winners = [ticket._id];   // single winner for now
+//     lottery.isCompleted = true;       // marks lottery as completed
+//     await lottery.save();
+
+//     res.json({ success: true, winner: ticket });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
+
+// 🔹 Get All Lotteries
+
+
 exports.drawWinners = async (req, res) => {
   try {
-    const lotteryId = req.params.id;          // <-- use URL param
+    const lotteryId = req.params.id; // <-- Lottery ID passed in URL param
     const { ticketNumber, username, prize, profileImage, notes } = req.body;
 
+    // Find the lottery by ID
     const lottery = await Lottery.findById(lotteryId).populate("tickets");
     if (!lottery) return res.status(404).json({ error: "Lottery not found" });
 
-    // Find sold ticket
+    // Check if the lottery has already been completed
+    if (lottery.isCompleted) {
+      return res.status(400).json({ error: "This lottery has already been completed" });
+    }
+
+    // Ensure only one winner per lottery
+    const existingWinner = lottery.winners.length > 0;
+    if (existingWinner) {
+      return res.status(400).json({ error: "A winner has already been selected for this lottery" });
+    }
+
+    // Find the ticket by ticketNumber and ensure it is "Sold"
     const ticket = lottery.tickets.find(
       t => t.ticketNumber === ticketNumber && t.status === "Sold"
     );
     if (!ticket) return res.status(404).json({ error: "Ticket not found or not sold" });
 
-    // Mark as winner and save extra info
+    // Mark this ticket as a winner
     ticket.isWinner = true;
     ticket.prize = prize || 0;
     ticket.profileImage = profileImage || "";
@@ -129,8 +178,8 @@ exports.drawWinners = async (req, res) => {
     ticket.username = username || "";
     await ticket.save();
 
-    // Add to lottery winners array
-    lottery.winners = [ticket._id];   // single winner for now
+    // Mark the lottery as completed and save the winner in the lottery's winners array
+    lottery.winners = [ticket._id];   // single winner for this lottery
     lottery.isCompleted = true;       // marks lottery as completed
     await lottery.save();
 
@@ -141,7 +190,8 @@ exports.drawWinners = async (req, res) => {
 };
 
 
-// 🔹 Get All Lotteries
+
+
 exports.getAllLotteries = async (req, res) => {
   try {
     const lotteries = await Lottery.find()
