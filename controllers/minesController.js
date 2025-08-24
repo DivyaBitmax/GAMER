@@ -103,8 +103,6 @@ exports.pickCell = async (req, res) => {
   }
 };
 
-
-
 exports.cashout = async (req, res) => {
   try {
     const { gameId } = req.body;
@@ -137,6 +135,7 @@ exports.cashout = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 // 🛠️ Admin Override
 exports.adminOverride = async (req, res) => {
   try {
@@ -159,39 +158,6 @@ exports.adminOverride = async (req, res) => {
   }
 };
 
-
-
-
-// 📊 Dashboard Metrics
-// exports.getStats = async (req, res) => {
-//   try {
-//     // Total unique users
-//     const totalUsers = await MinesGame.distinct("userId").then(u => u.length);
-
-//     // Total bets (sum of betAmount)
-//     const totalBets = await MinesGame.aggregate([
-//       { $group: { _id: null, total: { $sum: "$betAmount" } } }
-//     ]);
-
-//     // Total cashouts (sum of totalReturn where status = cashedout)
-//     const totalCashouts = await MinesGame.aggregate([
-//       { $match: { status: "cashedout" } },
-//       { $group: { _id: null, total: { $sum: "$totalReturn" } } }
-//     ]);
-
-//     // Active players (status = ongoing)
-//     const activePlayers = await MinesGame.distinct("userId", { status: "ongoing" }).then(u => u.length);
-
-//     res.json({
-//       totalUsers,
-//       totalBets: totalBets.length > 0 ? totalBets[0].total : 0,
-//       totalCashouts: totalCashouts.length > 0 ? totalCashouts[0].total : 0,
-//       activePlayers
-//     });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
 
 
 // 📊 Dashboard Metrics

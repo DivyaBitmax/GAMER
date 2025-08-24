@@ -5,7 +5,9 @@ const { createLottery, drawWinners, getAllLotteries, getLotteryById } = require(
 router.post("/create", createLottery);
 //router.post("/draw", drawWinners);
 // lotteryRoutes.js
-router.post("/:id/winner", drawWinners); // id = lotteryId
+// router.post("/:id/winner", drawWinners); // id = lotteryId
+// Only ticketNumber needed in body
+router.post("/winner", drawWinners);
 
 
 // New Routes
