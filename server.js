@@ -38,8 +38,8 @@ app.use("/api/mines", minesRoutes);
 
 
 //ludo
-const gameRoutes = require("./routes/ludoGameRoutes");
-app.use("/api/ludo", gameRoutes);
+app.use("/api/ludo", require("./routes/ludoGameRoutes"));
+
 
 // const walletRoutes = require("./routes/walletRoutes");      // 👈 wallet routes import
 // const gameWalletRoutes = require("./routes/gameWalletRoutes"); // 👈 game wallet routes import
