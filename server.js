@@ -2,9 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const { MONGO_URI, PORT } = require("./config/config");
+//const adminRoutes = require("./routes/adminLudoRoutes");
 
-const adminRoutes = require("./routes/adminLudoRoutes");
-const gameRoutes = require("./routes/LudoGameRoutes");
 
 const app = express();
 
@@ -22,8 +21,8 @@ app.use("/api/auth", require("./routes/authRoutes"));
 
 //admin login
 app.use("/api/admin/auth", require("./routes/adminAuthRoutes"));
-app.use("/api/admin", adminRoutes);
-app.use("/api/game", gameRoutes);
+//app.use("/api/admin", adminRoutes);
+
 
 
 // lottery
@@ -37,6 +36,10 @@ app.use("/api/lottery", lotteryRoutes);
 const minesRoutes = require("./routes/minesRoutes");
 app.use("/api/mines", minesRoutes);
 
+
+//ludo
+const gameRoutes = require("./routes/ludoGameRoutes");
+app.use("/api/ludo", gameRoutes);
 
 // const walletRoutes = require("./routes/walletRoutes");      // 👈 wallet routes import
 // const gameWalletRoutes = require("./routes/gameWalletRoutes"); // 👈 game wallet routes import

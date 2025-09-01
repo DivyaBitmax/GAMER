@@ -1,36 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const gameController = require("../controllers/ludoGameController");
 
-// ✅ Import all controller functions
-const {
-  rollPlayerDice,
-  createGame,
-  getGameById,
-  joinGame,
-  autoJoinGame
+router.post("/start", gameController.startGame);
+router.post("/roll", gameController.rollDice);
+router.post("/move", gameController.moveToken);
 
-} = require("../controllers/LudoGameController");
-
-// ✅ Authentication middleware
-const authenticateUser = require("../middlware/authMiddleware");
-
-// 🎮 Create a new game
-router.post("/create", authenticateUser, createGame);
-
-// 🎲 Roll the dice
-router.post("/roll-dice", authenticateUser, rollPlayerDice);
-
-// 📥 Join an existing game
-router.post("/join/:id", authenticateUser, joinGame);
-
-// 🔍 Get game details by ID
-router.get("/:id", authenticateUser, getGameById);
-
-
-
-// Auto assign route
-router.post("/join-auto", authenticateUser, autoJoinGame);
-
-
-// ✅ Export the router
 module.exports = router;
