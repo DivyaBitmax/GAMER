@@ -42,12 +42,6 @@ app.use("/api/mines", minesRoutes);
 // app.use("/api/ludo", gameRoutes);
 
 
-// const walletRoutes = require("./routes/walletRoutes");      // 👈 wallet routes import
-// const gameWalletRoutes = require("./routes/gameWalletRoutes"); // 👈 game wallet routes import
-// // 🎯 wallet APIs (deposit, withdraw, balance, txns)
-// app.use("/api/wallet", walletRoutes);
-// // 🎯 game wallet APIs (lock entry, settle game)
-// app.use("/api/game-wallet", gameWalletRoutes);
 
 
 
@@ -56,3 +50,12 @@ app.get('/live',(req,res)=>{
 })
 app.listen(PORT, () => console.log(` Server running on port ${PORT}`));
 
+
+
+
+// const walletRoutes = require("./routes/walletRoutes");      // wallet routes import
+// const gameWalletRoutes = require("./routes/gameWalletRoutes"); // game wallet routes import
+// //  wallet APIs (deposit, withdraw, balance, txns)
+// app.use("/api/wallet", walletRoutes);
+// // game wallet APIs (lock entry, settle game)
+// app.use("/api/game-wallet", gameWalletRoutes);

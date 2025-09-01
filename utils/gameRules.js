@@ -1,6 +1,7 @@
 // Safe zones (stars + colored start positions)
 const SAFE_ZONES = [0, 8, 13, 21, 26, 34, 39, 47]; 
 exports.SAFE_ZONES = SAFE_ZONES;  
+
 // Check if move is valid
 exports.checkMove = (token, diceValue) => {
   if (token.position === -1 && diceValue !== 6) return false; // Need 6 to start

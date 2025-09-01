@@ -125,38 +125,81 @@ exports.drawWinners = async (req, res) => {
 
 
 // Get Winner by Ticket Number
-exports.getWinnerByTicketNumber = async (req, res) => {
+// exports.getWinnerByTicketNumber = async (req, res) => {
+//   try {
+//     const { ticketNumber } = req.params;
+
+//     if (!ticketNumber) {
+//       return res.status(400).json({ error: "ticketNumber is required" });
+//     }
+
+//     // Find ticket
+//     const ticket = await Ticket.findOne({ ticketNumber, isWinner: true })
+//       .populate("lotteryId");
+
+//     if (!ticket) {
+//       return res.status(404).json({ error: "No winner found for this ticket" });
+//     }
+
+//     res.json({
+//       success: true,
+//       winner: {
+//         ticketNumber: ticket.ticketNumber,
+//         username: ticket.username,
+//         prize: ticket.prize,
+//         profileImage: ticket.profileImage,
+//         notes: ticket.notes,
+//         lotteryId: ticket.lotteryId?._id,
+//         drawDate: ticket.lotteryId?.drawDate
+//       }
+//     });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
+
+// Get Winner by Lottery ID
+exports.getWinnerByLotteryId = async (req, res) => {
   try {
-    const { ticketNumber } = req.params;
+    const { id } = req.params;
 
-    if (!ticketNumber) {
-      return res.status(400).json({ error: "ticketNumber is required" });
+    if (!id) {
+      return res.status(400).json({ error: "lotteryId is required" });
     }
 
-    // Find ticket
-    const ticket = await Ticket.findOne({ ticketNumber, isWinner: true })
-      .populate("lotteryId");
+    // Find lottery with winners populated
+    const lottery = await Lottery.findById(id).populate("winners");
 
-    if (!ticket) {
-      return res.status(404).json({ error: "No winner found for this ticket" });
+    if (!lottery) {
+      return res.status(404).json({ error: "Lottery not found" });
     }
+
+    if (!lottery.winners || lottery.winners.length === 0) {
+      return res.status(404).json({ error: "No winners found for this lottery" });
+    }
+
+    // Format winners
+    const formattedWinners = lottery.winners.map(ticket => ({
+      ticketNumber: ticket.ticketNumber,
+      username: ticket.username,
+      prize: ticket.prize,
+      profileImage: ticket.profileImage,
+      notes: ticket.notes,
+      lotteryId: lottery._id,
+      drawDate: lottery.drawDate
+    }));
 
     res.json({
       success: true,
-      winner: {
-        ticketNumber: ticket.ticketNumber,
-        username: ticket.username,
-        prize: ticket.prize,
-        profileImage: ticket.profileImage,
-        notes: ticket.notes,
-        lotteryId: ticket.lotteryId?._id,
-        drawDate: ticket.lotteryId?.drawDate
-      }
+      lotteryId: lottery._id,
+      winners: formattedWinners
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 
 

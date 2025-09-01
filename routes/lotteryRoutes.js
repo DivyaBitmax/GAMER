@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createLottery, drawWinners, getAllLotteries, getLotteryById,  getWinnerByTicketNumber  } = require("../controllers/lotteryController");
+const { createLottery, drawWinners, getAllLotteries, getLotteryById,  getWinnerByTicketNumber, getWinnerByLotteryId  } = require("../controllers/lotteryController");
 
 router.post("/create", createLottery);
 //router.post("/draw", drawWinners);
@@ -9,7 +9,10 @@ router.post("/create", createLottery);
 // Only ticketNumber needed in body
 router.post("/winner", drawWinners);
 // Get winner by ticketNumber
-router.get("/winner/:ticketNumber", getWinnerByTicketNumber);
+//router.get("/winner/:ticketNumber", getWinnerByTicketNumber);
+
+router.get("/winner/:id", getWinnerByLotteryId);
+
 
 // New Routes
 router.get("/", getAllLotteries);

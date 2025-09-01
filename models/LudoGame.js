@@ -15,7 +15,7 @@ const gameSchema = new mongoose.Schema({
   currentTurn: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   diceValue: { type: Number, default: null },
   sixCount: { type: Number, default: 0 }, // track continuous sixes
-  status: { type: String, enum: ["waiting", "ongoing", "finished"], default: "waiting" },
+  status: { type: String, enum: ["waiting", "ready","ongoing", "finished"], default: "waiting" },
   winner: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
 });
 
